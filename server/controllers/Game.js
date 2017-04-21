@@ -22,11 +22,12 @@ const collectIncome = (req, res) => {
             // return res.status(200).json({ message: 'Clicked.' });
       });
     }
-
-    return res.status(200).json({ message: 'No income' });
+    return 0;
+    // return res.status(200).json({ message: 'No income' });
   });
 };
 
+let interval = null;
 const gamePage = (req, res) => {
   Bank.BankModel.findByOwner(req.session.account._id, (err, docs) => {
     if (err) {
@@ -35,17 +36,21 @@ const gamePage = (req, res) => {
     }
     const bank = docs;
     let cred = 0;
-      // collectIncome(req, res);
-    setInterval(collectIncome.bind(null, req, res), 1000);
+    let bankCount = 1;
+    for (let i = 0; i < bank.length; i++) {
+      bankCount = bankCount + 1;
+    }
+    const bcst = bankCount * bankCount * 100;
+    if(interval === null){
+      interval = setInterval(collectIncome.bind(null, req, res), 1000);
+    }
     return models.Account.AccountModel.findOne({ username: req.session.account.username }
     , (error, newdocs) => {
       cred = newdocs.credits;
-          // console.log(cred);
-      return res.render('app', { csrfToken: req.csrfToken(), banks: bank, credits: cred });
+      return res.render('app', { csrfToken: req.csrfToken(), bcost: bcst, banks: bank, credits: cred });
     });
   });
   // const acc = req.session.account;
-  // return res.render('app', { csrfToken: req.csrfToken(), data: dat, credits: cred });
 };
 
 const makeBank = (req, res) => {

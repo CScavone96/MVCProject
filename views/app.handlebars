@@ -42,7 +42,7 @@
     <label>|</label>
     <!-<input id="domoCredits" type="text" name="credits" placeholder="Credits"/>
     <form id="bankPanel" name="panel" action="/bankMaker" method="POST">
-      <label>Cost: 100</label>
+      <label>Cost:</label><label id="bankCost">{{bcost}}</label>
       <input type="hidden" name="_csrf" value={{csrfToken}} /> 
       <input class="makeDomoSubmit" type="submit" value="Make Bank" />
     </form>
