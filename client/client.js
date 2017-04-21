@@ -59,7 +59,7 @@ $(document).ready(() => {
     return false;
   });
   
-  $("#domoForm").on("submit", (e) => {
+  $("#panel").on("submit", (e) => {
     e.preventDefault();
 
     $("#domoMessage").animate({width:'hide'},350);
@@ -69,7 +69,7 @@ $(document).ready(() => {
       return false;
     }
 
-    sendAjax($("#domoForm").attr("action"), $("#domoForm").serialize());
+    sendAjax($("#panel").attr("action"), $("#panel").serialize());
 
     return false;
   });

@@ -5,32 +5,65 @@
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   <link rel="shortcut icon" href="/assets/img/favicon.png"/>
   <link rel="stylesheet" type="text/css" href="/assets/style.css"/>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script>
+  $(document).ready(function(){
+      $("#incPanel").submit(function(e) {
+            e.preventDefault(); // Prevents the page from refreshing
+            var $this = $(this); // `this` refers to the current form element
+            $.post(
+                $this.attr("action"), // Gets the URL to sent the post to
+                $this.serialize(), // Serializes form data in standard format
+                function(data) {$('#credDisplay').html(parseInt($('#credDisplay').html())+1);},
+                "json" // The format the response should be in
+            );
+        });
+        $("#bankPanel").submit(function(e) {
+            e.preventDefault(); // Prevents the page from refreshing
+            var $this = $(this); // `this` refers to the current form element
+            $.post(
+                $this.attr("action"), // Gets the URL to sent the post to
+                $this.serialize(), // Serializes form data in standard format
+                function(data) {location.reload();},
+                "json" // The format the response should be in
+            );
+        });
+    });
+  </script>
 </head>
 <body>
   <nav><a href="/login"><img id="logo" src="/assets/img/face.png" alt="face logo"/></a>
     <div class="navlink"><a href="/logout">Log out</a></div>
   </nav>
-  <section id="makeDomo">
-    <form id="domoForm" name="domoForm" action="/maker" method="POST" class="domoForm">
-      <label for="name">Name: </label>
-      <input id="domoName" type="text" name="name" placeholder="Domo Name"/>
-      <label for="age">Age: </label>
-      <input id="domoAge" type="text" name="age" placeholder="Domo Age"/>
+  <br>
+  <div class="panel">
+    <label>Credits: </label> 
+    <label id="credDisplay">{{credits}}</label>
+    <label>|</label>
+    <!-<input id="domoCredits" type="text" name="credits" placeholder="Credits"/>
+    <form id="bankPanel" name="panel" action="/bankMaker" method="POST">
+      <label>Cost: 100</label>
       <input type="hidden" name="_csrf" value={{csrfToken}} /> 
-      <input class="makeDomoSubmit" type="submit" value="Make Domo" />
+      <input class="makeDomoSubmit" type="submit" value="Make Bank" />
     </form>
-  </section>
+  </div>
+  <br>
+   <div class="panel">
+  <form id="incPanel" name="panel" action="/addCredit" method="POST">
+  <input type="hidden" name="_csrf" value={{csrfToken}} /> 
+  <input id="addCred" class="makeDomoSubmit" type="submit" value="Add 1 Credit" />
+  </form>
+  </div>
   <section id="domos">
     <div class="domo">
-      {{#if domos}}
-        {{#each domos}}
+      {{#if banks}}
+        {{#each banks}}
           <div class ="domo"><img src="/assets/img/domoface.jpeg" alt="domo face" class="domoFace"/>
-            <h3 class = "domoName">Name: {{this.name}}</h3>
-            <h3 class = "domoAge">Age: {{this.age}}</h3>
+            <h3 class = "domoName">Bank</h3>
           </div>
         {{/each}}
         {{else}}
-          <h3 class="emptyDomo">No Domos yet</h3>
+          <h3 class="emptyDomo">No Banks yet</h3>
         {{/if}}
     </div>
   </section>

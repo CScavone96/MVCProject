@@ -7,8 +7,11 @@ const router = (app) => {
   app.get('/signup', mid.requiresSecure, mid.requiresLogout, controllers.Account.signupPage);
   app.post('/signup', mid.requiresSecure, mid.requiresLogout, controllers.Account.signup);
   app.get('/logout', mid.requiresLogin, controllers.Account.logout);
-  app.get('/maker', mid.requiresLogin, controllers.Domo.makerPage);
-  app.post('/maker', mid.requiresLogin, controllers.Domo.make);
+  app.get('/game', mid.requiresLogin, controllers.Game.gamePage);
+  //app.get('/maker', mid.requiresLogin, controllers.Domo.makerPage);
+  //app.post('/maker', mid.requiresLogin, controllers.Domo.make);
+  app.post('/addCredit', mid.requiresLogin, controllers.Game.addCredit);
+  app.post('/bankMaker', mid.requiresLogin, controllers.Bank.make);
   app.get('/', mid.requiresSecure, mid.requiresLogout, controllers.Account.loginPage);
 };
 

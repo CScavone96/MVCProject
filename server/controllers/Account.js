@@ -33,7 +33,7 @@ const login = (request, response) => {
 
     req.session.account = Account.AccountModel.toAPI(account);
 
-    return res.json({ redirect: '/maker' });
+    return res.json({ redirect: '/game' });
   });
 };
 
@@ -58,6 +58,7 @@ const signup = (request, response) => {
     const accountData = {
       username: req.body.username,
       salt,
+      credits: 0,
       password: hash,
     };
 
@@ -67,7 +68,7 @@ const signup = (request, response) => {
 
     savePromise.then(() => {
       req.session.account = Account.AccountModel.toAPI(newAccount);
-      res.json({ redirect: 'maker' });
+      res.json({ redirect: 'game' });
     });
     savePromise.catch((err) => {
       console.log(err);

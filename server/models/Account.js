@@ -20,6 +20,11 @@ const AccountSchema = new mongoose.Schema({
     type: Buffer,
     required: true,
   },
+  credits: {
+    type: Number,
+    min: 0,
+    required: true,
+  },
   password: {
     type: String,
     required: true,
@@ -33,6 +38,7 @@ const AccountSchema = new mongoose.Schema({
 AccountSchema.statics.toAPI = doc => ({
   // _id is built into your mongo document and is guaranteed to be unique
   username: doc.username,
+  credits: doc.credits,
   _id: doc._id,
 });
 
