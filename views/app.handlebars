@@ -7,7 +7,29 @@
   <link rel="stylesheet" type="text/css" href="/assets/style.css"/>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script>
-  $(document).ready(function(){
+    const countBanks = () => 
+    {
+    var container_div = document.getElementById('banks');
+    var count = container_div.getElementsByTagName('div').length-1;
+    return count;
+    };
+
+    const showIncome = () => {
+        var bCount = countBanks();
+        console.log(bCount);
+        $("#incomeDisplay").html(bCount);
+        return bCount;
+    };
+    
+    const updateIncome = () => 
+    {
+        bCount = showIncome();
+        $("#credDisplay").html(parseInt($('#credDisplay').html())+bCount);
+    };
+    $(document).ready(function(){
+      showIncome();    
+      setInterval(updateIncome, 1000);
+      
       $("#incPanel").submit(function(e) {
             e.preventDefault(); // Prevents the page from refreshing
             var $this = $(this); // `this` refers to the current form element
@@ -40,6 +62,9 @@
     <label>Credits: </label> 
     <label id="credDisplay">{{credits}}</label>
     <label>|</label>
+    <label>Income: </label>
+    <label id="incomeDisplay">0</label>
+    <label>|</label>
     <!-<input id="domoCredits" type="text" name="credits" placeholder="Credits"/>
     <form id="bankPanel" name="panel" action="/bankMaker" method="POST">
       <label>Cost:</label><label id="bankCost">{{bcost}}</label>
@@ -54,7 +79,7 @@
   <input id="addCred" class="makeDomoSubmit" type="submit" value="Add 1 Credit" />
   </form>
   </div>
-  <section id="domos">
+  <section id="banks">
     <div class="domo">
       {{#if banks}}
         {{#each banks}}
