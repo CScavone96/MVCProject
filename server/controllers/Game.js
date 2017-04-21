@@ -41,13 +41,14 @@ const gamePage = (req, res) => {
       bankCount = bankCount + 1;
     }
     const bcst = bankCount * bankCount * 100;
-    if(interval === null){
+    if (interval === null) {
       interval = setInterval(collectIncome.bind(null, req, res), 1000);
     }
     return models.Account.AccountModel.findOne({ username: req.session.account.username }
     , (error, newdocs) => {
       cred = newdocs.credits;
-      return res.render('app', { csrfToken: req.csrfToken(), bcost: bcst, banks: bank, credits: cred });
+      return res.render('app', { csrfToken: req.csrfToken(),
+        bcost: bcst, banks: bank, credits: cred });
     });
   });
   // const acc = req.session.account;
