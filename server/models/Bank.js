@@ -2,12 +2,9 @@ const mongoose = require('mongoose');
 
 mongoose.Promise = global.Promise;
 
-const _ = require('underscore');
-
 let BankModel = {};
 
 const convertId = mongoose.Types.ObjectId;
-const setName = (name) => _.escape(name).trim();
 
 const BankSchema = new mongoose.Schema({
   owner: {
@@ -22,9 +19,9 @@ const BankSchema = new mongoose.Schema({
   },
 });
 
-BankSchema.statics.toAPI = (doc) => ({
-  //credits: doc.credits,
-});
+// BankSchema.statics.toAPI = (doc) => ({
+  // credits: doc.credits,
+// });
 
 BankSchema.statics.findByOwner = (ownerId, callback) => {
   const search = {
