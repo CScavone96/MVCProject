@@ -126,9 +126,7 @@ nav:nth-child(1) {
     text-decoration: none;
 }
 
-form {
-    display: inline;
-}
+
 
 .formSubmit:link, .formSubmit:visited, .formSubmit:hover, .formSubmit:active {
     color: white;
