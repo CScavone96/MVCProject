@@ -99,14 +99,12 @@ const changePassword = (request, response) => {
     return res.status(400).json({ error: 'New passwords do not match' });
   }
   return Account.AccountModel.generateHash(req.body.pass, (salt, hash) => {
-      const query = { username: req.session.account.username };
-          const newPassword = {password: hash };
-          const newSalt = {salt: salt };
-          return models.Account.AccountModel.update(query, newPassword, (err) => {
-              return models.Account.AccountModel.update(query, newSalt, (err) => {
-                return res.json({ redirect: 'game' });
-            });
-          });
+    const query = { username: req.session.account.username };
+    const newPassword = { password: hash };
+    const newSalt = { salt };
+    return models.Account.AccountModel.update(query, newPassword,
+          () => models.Account.AccountModel.update(query,
+          newSalt, () => res.json({ redirect: 'game' })));
   });
 };
 

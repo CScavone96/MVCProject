@@ -18,9 +18,9 @@ const router = (app) => {
   app.post('/passChange', mid.requiresLogin, controllers.Account.passChange);
   app.get('/help', mid.requiresLogin, controllers.Game.help);
   app.get('/404', controllers.Game.notFound);
-  app.get('*',function (req, res) {
-        res.redirect('/404');
-    });
+  app.get('*', (req, res) => {
+    res.redirect('/404');
+  });
 };
 
 module.exports = router;
