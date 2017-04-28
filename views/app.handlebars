@@ -1,21 +1,26 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <title>DomoMaker</title>
+  <title>SocialGame</title>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   <link rel="shortcut icon" href="/assets/img/favicon.png"/>
   <link rel="stylesheet" type="text/css" href="/assets/style.css"/>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script>
-    const countBanks = () => 
+  
+    const countIncome = () => 
     {
-    var container_div = document.getElementById('banks');
-    var count = container_div.getElementsByTagName('div').length-1;
-    return count;
+    var container_div = document.getElementById('tweets');
+    var count = container_div.getElementsByClassName('tweetIncome');
+    var inc = 0;
+    for(var i = 0; i < count.length; i++){
+        inc = inc + parseInt(count[i].innerHTML);
+    }
+    return inc;
     };
 
     const showIncome = () => {
-        var bCount = countBanks();
+        var bCount = countIncome();
         console.log(bCount);
         $("#incomeDisplay").html(bCount);
         return bCount;
@@ -31,64 +36,99 @@
       setInterval(updateIncome, 1000);
       
       $("#incPanel").submit(function(e) {
-            e.preventDefault(); // Prevents the page from refreshing
-            var $this = $(this); // `this` refers to the current form element
+            e.preventDefault(); 
+            var $this = $(this); 
             $.post(
-                $this.attr("action"), // Gets the URL to sent the post to
-                $this.serialize(), // Serializes form data in standard format
+                $this.attr("action"), 
+                $this.serialize(), 
                 function(data) {$('#credDisplay').html(parseInt($('#credDisplay').html())+1);},
-                "json" // The format the response should be in
+                "json" 
             );
         });
-        $("#bankPanel").submit(function(e) {
-            e.preventDefault(); // Prevents the page from refreshing
-            var $this = $(this); // `this` refers to the current form element
+        $("#friendPanel").submit(function(e) {
+            e.preventDefault(); 
+            var $this = $(this); 
             $.post(
-                $this.attr("action"), // Gets the URL to sent the post to
-                $this.serialize(), // Serializes form data in standard format
+                $this.attr("action"), 
+                $this.serialize(), 
                 function(data) {location.reload();},
-                "json" // The format the response should be in
+                "json" 
+            );
+        });
+        $("#lowPanel").submit(function(e) {
+            e.preventDefault(); 
+            var $this = $(this); 
+            $.post(
+                $this.attr("action"), 
+                $this.serialize(), 
+                function(data) {location.reload();},
+                "json" 
             );
         });
     });
   </script>
 </head>
 <body>
-  <nav><a href="/login"><img id="logo" src="/assets/img/face.png" alt="face logo"/></a>
+  <nav><a href="/login"><img id="logo" src="/assets/img/faceFrog.png" alt="face logo"/></a>
     <div class="navlink"><a href="/logout">Log out</a></div>
+    <div class="navlink"><a href="/help">Help</a></div>
+    <div class="navlink"><a href="/changePass">Change Password</a></div>
   </nav>
   <br>
   <div class="panel">
-    <label>Credits: </label> 
-    <label id="credDisplay">{{credits}}</label>
+    <label>Impressions: </label> 
+    <label id="credDisplay">{{impressions}}</label>
     <label>|</label>
-    <label>Income: </label>
+    <label>Followers: </label>
     <label id="incomeDisplay">0</label>
     <label>|</label>
-    <!-<input id="domoCredits" type="text" name="credits" placeholder="Credits"/>
-    <form id="bankPanel" name="panel" action="/bankMaker" method="POST">
-      <label>Cost:</label><label id="bankCost">{{bcost}}</label>
+    <table>
+    <tr>
+    <td>
+    <label>Cost:</label><label id="badCost">{{bcost}}</label>
+    </td>
+    <td>
+    <form id="friendPanel" name="panel" action="/tweetBad" method="POST">
       <input type="hidden" name="_csrf" value={{csrfToken}} /> 
-      <input class="makeDomoSubmit" type="submit" value="Make Bank" />
+      <input class="makeSubmit" type="submit" value="Tweet at a friend" />
     </form>
+    </td>
+    <tr>
+    <td>
+    <label>Cost:</label><label id="lowCost">{{lcost}}</label>
+    </td>
+    <td>
+    <form id="lowPanel" name="panel" action="/tweetLow" method="POST">
+      <input type="hidden" name="_csrf" value={{csrfToken}} /> 
+      <input class="makeSubmit" type="submit" value="Tweet about cats" />
+    </form>
+    </td>
+    </tr>
+    </table>
   </div>
   <br>
-   <div class="panel">
+  <div class="panel">
   <form id="incPanel" name="panel" action="/addCredit" method="POST">
-  <input type="hidden" name="_csrf" value={{csrfToken}} /> 
-  <input id="addCred" class="makeDomoSubmit" type="submit" value="Add 1 Credit" />
+    <label>Spam Power: </label><label id="spamPow">1</label>
+    <input type="hidden" name="_csrf" value={{csrfToken}} /> 
+    <input id="addCred" class="makeSubmit" type="submit" value="Spam your account" />
   </form>
+  <!--<form id="aviPanel" name="panel" action="/upgradeAvatar" method="POST">
+    <input type="hidden" name="_csrf" value={{csrfToken}} /> 
+    <input id="upgradeAvi" class="makeSubmit" type="submit" value="Upgrade Avatar" />
+  </form>!-->
   </div>
-  <section id="banks">
-    <div class="domo">
-      {{#if banks}}
-        {{#each banks}}
-          <div class ="domo"><img src="/assets/img/domoface.jpeg" alt="domo face" class="domoFace"/>
-            <h3 class = "domoName">Bank</h3>
+  <section id="tweets">
+    <div class="tweets">
+      {{#if tweets}}
+        {{#each tweets}}
+          <div class ="tweet"><img src="/assets/img/egg.jpg" alt="domo face" class="domoFace"/>
+            <p class = "tweetAcc">{{../accountName}} </p><p class = "tweetAt"> @{{../accountName}}</p><p class = "tweetIncome">{{this.income}}</p>
+            <p class = "tweetText">{{this.textContents}}</p>
           </div>
         {{/each}}
         {{else}}
-          <h3 class="emptyDomo">No Banks yet</h3>
+          <h3 class="emptyDomo">This user hasn't tweeted yet.</h3>
         {{/if}}
     </div>
   </section>

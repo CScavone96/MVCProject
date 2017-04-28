@@ -10,6 +10,10 @@ const signupPage = (req, res) => {
   res.render('signup', { csrfToken: req.csrfToken() });
 };
 
+const changePassPage = (req, res) => {
+  res.render('password', { csrfToken: req.csrfToken() });
+};
+
 const logout = (req, res) => {
   req.session.destroy();
   res.redirect('/');
@@ -58,7 +62,7 @@ const signup = (request, response) => {
     const accountData = {
       username: req.body.username,
       salt,
-      credits: 0,
+      impressions: 0,
       password: hash,
     };
 
@@ -81,8 +85,35 @@ const signup = (request, response) => {
   });
 };
 
+const changePassword = (request, response) => {
+  const req = request;
+  const res = response;
+
+  req.body.pass = `${req.body.pass}`;
+  req.body.pass2 = `${req.body.pass2}`;
+
+  if (!req.body.pass || !req.body.pass2) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+  if (req.body.pass !== req.body.pass2) {
+    return res.status(400).json({ error: 'New passwords do not match' });
+  }
+  return Account.AccountModel.generateHash(req.body.pass, (salt, hash) => {
+      const query = { username: req.session.account.username };
+          const newPassword = {password: hash };
+          const newSalt = {salt: salt };
+          return models.Account.AccountModel.update(query, newPassword, (err) => {
+              return models.Account.AccountModel.update(query, newSalt, (err) => {
+                return res.json({ redirect: 'game' });
+            });
+          });
+  });
+};
+
 module.exports.loginPage = loginPage;
 module.exports.login = login;
 module.exports.logout = logout;
 module.exports.signupPage = signupPage;
+module.exports.changePass = changePassPage;
+module.exports.passChange = changePassword;
 module.exports.signup = signup;

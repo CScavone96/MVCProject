@@ -1,22 +1,22 @@
 const models = require('../models');
 
-const Bank = models.Bank;
+const Tweet = models.Tweet;
 
 
 const collectIncome = (req, res) => {
-  Bank.BankModel.findByOwner(req.session.account._id, (err, docs) => {
+  Tweet.TweetModel.findByOwner(req.session.account._id, (err, docs) => {
     if (err) {
       console.log(err);
       return res.status(400).json({ error: 'An error occured' });
     }
-    const banks = docs;
+    const tweets = docs;
     let income = 0;
-    for (let i = 0; i < banks.length; i++) {
+    for (let i = 0; i < tweets.length; i++) {
       income = income + 1;
     }
     if (income > 0) {
       const query = { username: req.session.account.username };
-      const newCredits = { $inc: { credits: income } };
+      const newCredits = { $inc: { impressions: income } };
       return models.Account.AccountModel.update(query, newCredits, () => {
             // if (err) return res.status(400).json({ error: 'An error occured.' });
             // return res.status(200).json({ message: 'Clicked.' });
@@ -29,62 +29,70 @@ const collectIncome = (req, res) => {
 
 let interval = null;
 const gamePage = (req, res) => {
-  Bank.BankModel.findByOwner(req.session.account._id, (err, docs) => {
+  Tweet.TweetModel.findByOwner(req.session.account._id, (err, docs) => {
     if (err) {
       console.log(err);
       return res.status(400).json({ error: 'An error occured' });
     }
-    const bank = docs;
-    let cred = 0;
-    let bankCount = 1;
-    for (let i = 0; i < bank.length; i++) {
-      bankCount = bankCount + 1;
-    }
-    const bcst = bankCount * bankCount * 100;
+    const twts = docs;
+    let twets = [];
+    let imp = 0;
+    let btweetCount = 1;
+    let ltweetCount = 1;
     if (interval === null) {
       interval = setInterval(collectIncome.bind(null, req, res), 1000);
     }
-    return models.Account.AccountModel.findOne({ username: req.session.account.username }
-    , (error, newdocs) => {
-      cred = newdocs.credits;
-      return res.render('app', { csrfToken: req.csrfToken(),
-        bcost: bcst, banks: bank, credits: cred });
-    });
+    if(twts.length === 0){
+        return models.Account.AccountModel.findOne({ username: req.session.account.username }
+            , (error, newdocs) => {
+              imp = newdocs.impressions;
+              const bcst = btweetCount * btweetCount * 25;
+              const lcst = ltweetCount * ltweetCount * 100;
+              let accName = newdocs.username;
+              return res.render('app', { csrfToken: req.csrfToken(),
+                bcost: bcst, lcost: lcst, tweets: twets, impressions: imp, accountName: accName });
+            }); 
+    }
+    for (let i = 0; i < twts.length; i++) {
+      Tweet.TweetModel.findById(twts[i].id, 'income textContents createdData', function (err, dcs) {
+        if(dcs.income === 1){
+          btweetCount = btweetCount + 1;
+        }
+        if(dcs.income === 2){
+          ltweetCount = ltweetCount + 1;
+        }
+        twets.push(dcs);
+        twets.sort(function(a,b){
+          return new Date(b.createdData) - new Date(a.createdData);
+        });
+        if(i === twts.length -1){
+           return models.Account.AccountModel.findOne({ username: req.session.account.username }
+            , (error, newdocs) => {
+              imp = newdocs.impressions;
+              const bcst = btweetCount * btweetCount * 25;
+              const lcst = ltweetCount * ltweetCount * 100;
+              let accName = newdocs.username;
+              return res.render('app', { csrfToken: req.csrfToken(),
+                bcost: bcst, lcost: lcst, tweets: twets, impressions: imp, accountName: accName });
+            }); 
+        }
+      });
+    }
   });
   // const acc = req.session.account;
 };
 
-const makeBank = (req, res) => {
-  if (!req.body.name || !req.body.age) {
-    return res.status(400).json({ error: 'Both name and age are required' });
-  }
+const notFoundPage = (req, res) => {
+    return res.render('notFound');
+};
 
-  const bankData = {
-    name: req.body.name,
-    age: req.body.age,
-    owner: req.session.account._id,
-  };
-
-  const newBank = new Bank.BankModel(bankData);
-
-  const bankPromise = newBank.save();
-
-  bankPromise.then(() => res.json({ redirect: '/game' }));
-
-  bankPromise.catch((err) => {
-    console.log(err);
-    if (err.code === 11000) {
-      return res.status(400).json({ error: 'Bank already exists.' });
-    }
-    return res.status(400).json({ error: 'An error occured.' });
-  });
-
-  return bankPromise;
+const helpPage = (req, res) => {
+    return res.render('help', { csrfToken: req.csrfToken() });
 };
 
 const addCredit = (req, res) => {
   const query = { username: req.session.account.username };
-  const newCredits = { $inc: { credits: 1 } };
+  const newCredits = { $inc: { impressions: 1 } };
   models.Account.AccountModel.update(query, newCredits, (err) => {
     if (err) return res.status(400).json({ error: 'An error occured.' });
     return res.status(200).json({ message: 'Clicked.' });
@@ -92,5 +100,6 @@ const addCredit = (req, res) => {
 };
 
 module.exports.gamePage = gamePage;
-module.exports.make = makeBank;
+module.exports.notFound = notFoundPage;
 module.exports.addCredit = addCredit;
+module.exports.help = helpPage;

@@ -4,6 +4,8 @@ html, body {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    background-color: #E4F3FB;
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
 }
 
 #logo {
@@ -11,13 +13,14 @@ html, body {
     width: 40;
     padding-top: 5px;
     float:left;
+    margin-left: 1.5%;
     border-radius: 8px;
 }
 
 nav {
     width: 100%;
     height: 50px;
-    background-color: #55acee;
+    background-color: #FFA84A;
 }
 
 nav:nth-child(1) {
@@ -38,44 +41,60 @@ nav:nth-child(1) {
     text-decoration: none;
     padding: 5px;
     border-radius: 4px;
-    background-color: #55acee;
+    background-color: #FFA84A;
     transition: background-color 0.4s ease;
 }
 
 .navlink a:hover {
     transition: background-color 0.8s ease;
-    background-color: #66bdff;
+    background-color: #EF8B1F;
 }
 
 .panel {
-    border: 2px solid #338acc;
-    height: 35px;
-    width: 75%;
+    border: 2px solid #BC670B;
+    height: auto;
+    width: 60%;
     margin-top:0px;
     padding-top:10px;
-    background-color: #55acee;
+    padding-bottom:10px;
+    background-color: #FFA84A;
     border-bottom-right-radius: 4px;
     border-top-right-radius: 4px;
 }
 
 .panel label {
-    display: inline-block;
+    display: inline;
     margin-left: 2%;
     font-size: 1.2em;
     float: left;
     color: white;
 }
 
+.passForm {
+    height: 300px;
+    width: 350px;
+    margin: 0 auto;
+    padding-top: 350px;
+    font-size: 1.2em;
+}
+
+.passForm label {
+    display: inline-block;
+    width: 250px;
+    margin-right: 2%;
+    text-align: right;
+    font-size: 1.2em;
+}
+
 .panel input[type=text] {
     float:left;
 }
 
-.makeDomoSubmit {
+.makeSubmit {
     transition: background-color 0.4s ease;
     display: inline;
-    width: 90px;
     margin-left: 2%;
-    background-color: #55acee;
+    background-color: #FFA84A;
     border-radius: 2px;
     color: white;
     text-decoration: none;
@@ -92,7 +111,7 @@ nav:nth-child(1) {
 
 .mainForm {
     height: 300px;
-    width: 350px;
+    width: 600px;
     margin: 0 auto;
     padding-top: 350px;
     font-size: 1.2em;
@@ -104,7 +123,7 @@ nav:nth-child(1) {
 
 .mainForm label {
     display: inline-block;
-    width: 100px;
+    width: 250px;
     margin-right: 2%;
     text-align: right;
     font-size: 1.2em;
@@ -117,8 +136,8 @@ nav:nth-child(1) {
     margin: 0 auto;
     margin-top: 14px;
     font-size: 1.2em;
-    width: 100px;
-    background-color: #55acee;
+    width: auto;
+    background-color: #FFA84A;
     border-radius: 2px;
     border-color: #66acee;
     padding: 3px 0px;
@@ -126,6 +145,9 @@ nav:nth-child(1) {
     text-decoration: none;
 }
 
+.panel form{
+    display: inline;
+}
 
 
 .formSubmit:link, .formSubmit:visited, .formSubmit:hover, .formSubmit:active {
@@ -146,7 +168,7 @@ nav:nth-child(1) {
 
 #user:focus, #pass:focus, #pass2:focus {
     outline: none;
-    box-shadow: 0px 0px 1px 1px #55acee;
+    box-shadow: 0px 0px 1px 1px #FFA84A;
 }
 
 #domoMessage {
@@ -180,44 +202,42 @@ nav:nth-child(1) {
     font-style: italic;
 }
 
-#domo {
+#tweet {
     z-index: 225;
     margin-top: -20px;
     margin-left: 135px;
-    height: 450px;
-    width: 300px;
+    height: 400px;
+    width: 350px;
     -ms-transform: rotate(330deg);
     -webkit-transform: rotate(330deg); 
     transform: rotate(330deg);
 }
 
-#domos {
-    width: 40%;
+#tweets {
+    width: 50%;
     min-width: 400px;
-    border: 2px solid #55acee;
-    border-radius: 4px;
     margin: 0 auto;
     margin-top: 100px;
 }
 
-.domo {
+.tweet {
     width: 95%;
     margin: 0 auto;
     margin-top: 2px;
     margin-bottom: 2px;
-    border: 2px solid #55acee;
+    border: 2px solid #B4D8ED;
     border-radius: 4px;
-    background-color: #55acee;
+    background-color: #F4FAFD;
     padding: 10px;
     min-height:60px;
     overflow: hidden;
 }
 
-.domo:hover {
+.tweet:hover {
     transition: border-color 0.2s ease-out;
-    border-color: rgba(255,255,255, 0.8);
+    border-color: rgba(228,243,251, 0.8);
     transition: background-color 2.6s ease-out;
-    background-color: #66bfff;
+    background-color: #E4F3FB;
 }
 
 img.domoFace {
@@ -238,22 +258,49 @@ h3.emptyDomo {
     margin-top: 18px;
 }
 
-h3.domoName {
+p.tweetText {
     float:left;
-    width: 200px;
-    font-weight: bold;
-    padding-left: 65px;
-    font-size: 1.5em;
+    width: 70%;
+    padding-left: 0%;
+    font-size: 1.05em;
+    font-weight: normal;
+    display: block;
 }
 
-h3.domoAge {
-    float:right;
-    text-align: left;
-    width: 100px;
-    font-weight: bold;
-    padding-right: 40px;
-    font-size: 1.5em;
+p.tweetIncome {
+    display: inline;
+    text-align: right;
+    font-weight: normal;
+    float: right;
+    padding-right: 1%;
+    font-size: 1.2em;
+    margin-bottom: 0%;
 }
+
+#tweets p.tweetAcc {
+    display: inline;
+    font-weight: bold;
+    line-height: 25%;
+    float: left;
+    font-size: 1.2em;
+    margin-bottom: 0%;
+}
+
+#tweets p.tweetAt {
+    font-size: 1em;
+    line-height: 25%;
+    font-size: 1.2em;
+    margin-bottom: 0%;
+    color: #a6a6a6;
+    white-space: pre;
+}
+
+
+#tweets p.tweetText {
+    display: block;
+    
+}
+
 
 .domo:first-child {
     margin-top: 10px;
