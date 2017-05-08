@@ -20,6 +20,13 @@ const TweetSchema = new mongoose.Schema({
     required: true,
   },
 
+  username: {
+    type: String,
+    required: true,
+    trim: true,
+    default: 'Default text',
+  },
+
   textContents: {
     type: String,
     required: true,
@@ -44,7 +51,7 @@ TweetSchema.statics.findByOwner = (ownerId, callback) => {
     owner: convertId(ownerId),
   };
 
-  return TweetModel.find(search).select('impressions').exec(callback);
+  return TweetModel.find(search).select('income textContents username').exec(callback);
 };
 
 TweetModel = mongoose.model('Tweet', TweetSchema);

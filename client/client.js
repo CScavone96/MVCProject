@@ -1,6 +1,6 @@
 const handleError = (message) => {
   $("#errorMessage").text(message);
-  $("#domoMessage").animate({width:'toggle'},350);
+  $("#tweetMessage").animate({width:'toggle'},350);
 }
 
 const sendAjax = (action, data) => {
@@ -11,7 +11,7 @@ const sendAjax = (action, data) => {
     data: data,
     dataType: "json",
     success: (result, status, xhr) => {
-      $("#domoMessage").animate({width:'hide'},350);
+      $("#tweetMessage").animate({width:'hide'},350);
 
       window.location = result.redirect;
     },
@@ -27,7 +27,7 @@ $(document).ready(() => {
   $("#signupForm").on("submit", (e) => {
     e.preventDefault();
 
-    $("#domoMessage").animate({width:'hide'},350);
+    $("#tweetMessage").animate({width:'hide'},350);
 
     if($("#user").val() == '' || $("#pass").val() == '' || $("#pass2").val() == '') {
       handleError("RAWR! All fields are required");
@@ -47,7 +47,7 @@ $(document).ready(() => {
   $("#loginForm").on("submit", (e) => {
     e.preventDefault();
 
-    $("#domoMessage").animate({width:'hide'},350);
+    $("#tweetMessage").animate({width:'hide'},350);
 
     if($("#user").val() == '' || $("#pass").val() == '') {
       handleError("RAWR! Username or password is empty");
@@ -59,17 +59,12 @@ $(document).ready(() => {
     return false;
   });
   
-  $("#panel").on("submit", (e) => {
+  $("#tweetForm").on("submit", (e) => {
     e.preventDefault();
 
-    $("#domoMessage").animate({width:'hide'},350);
+    $("#tweetMessage").animate({width:'hide'},350);
 
-    if($("#domoName").val() == '' || $("#domoAge").val() == '') {
-      handleError("RAWR! All fields are required");
-      return false;
-    }
-
-    sendAjax($("#panel").attr("action"), $("#panel").serialize());
+    sendAjax($("#tweetForm").attr("action"), $("#tweetForm").serialize());
 
     return false;
   });

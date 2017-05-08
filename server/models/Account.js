@@ -25,6 +25,21 @@ const AccountSchema = new mongoose.Schema({
     min: 0,
     required: true,
   },
+  avatarPower: {
+    type: Number,
+    min: 0,
+    required: true,
+  },
+  avatar: {
+    type: Number,
+    min: -1,
+    required: true,
+  },
+  spamPower: {
+    type: Number,
+    min: 1,
+    required: true,
+  },
   password: {
     type: String,
     required: true,

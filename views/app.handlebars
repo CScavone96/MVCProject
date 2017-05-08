@@ -2,7 +2,12 @@
 <head>
   <meta charset="utf-8"/>
   <title>SocialGame</title>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <!--<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>!-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.2.1/react.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.2.1/react-dom.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.6.2/remarkable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
   <link rel="shortcut icon" href="/assets/img/favicon.png"/>
   <link rel="stylesheet" type="text/css" href="/assets/style.css"/>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -10,18 +15,20 @@
   
     const countIncome = () => 
     {
-    var container_div = document.getElementById('tweets');
-    var count = container_div.getElementsByClassName('tweetIncome');
-    var inc = 0;
-    for(var i = 0; i < count.length; i++){
-        inc = inc + parseInt(count[i].innerHTML);
-    }
-    return inc;
+        var container_div = document.getElementById('tweets');
+        var count = container_div.getElementsByClassName('tweetIncome');
+        var inc = 0;
+        for(var i = 0; i < count.length; i++){
+            if( parseInt(count[i].innerHTML) > 0){
+                inc = inc + parseInt(count[i].innerHTML);
+            }
+        }
+        return inc;
     };
 
     const showIncome = () => {
         var bCount = countIncome();
-        console.log(bCount);
+        //console.log(bCount);
         $("#incomeDisplay").html(bCount);
         return bCount;
     };
@@ -76,61 +83,24 @@
   </nav>
   <br>
   <div class="panel">
-    <label>Impressions: </label> 
-    <label id="credDisplay">{{impressions}}</label>
-    <label>|</label>
-    <label>Followers: </label>
-    <label id="incomeDisplay">0</label>
-    <label>|</label>
-    <table>
-    <tr>
-    <td>
-    <label>Cost:</label><label id="badCost">{{bcost}}</label>
-    </td>
-    <td>
-    <form id="friendPanel" name="panel" action="/tweetBad" method="POST">
-      <input type="hidden" name="_csrf" value={{csrfToken}} /> 
-      <input class="makeSubmit" type="submit" value="Tweet at a friend" />
-    </form>
-    </td>
-    <tr>
-    <td>
-    <label>Cost:</label><label id="lowCost">{{lcost}}</label>
-    </td>
-    <td>
-    <form id="lowPanel" name="panel" action="/tweetLow" method="POST">
-      <input type="hidden" name="_csrf" value={{csrfToken}} /> 
-      <input class="makeSubmit" type="submit" value="Tweet about cats" />
-    </form>
-    </td>
-    </tr>
-    </table>
+  <section id="stats">
+  </section>
+  <br><br>
+  <section id="avatarUpgrade">
+  </section>
   </div>
-  <br>
   <div class="panel">
-  <form id="incPanel" name="panel" action="/addCredit" method="POST">
-    <label>Spam Power: </label><label id="spamPow">1</label>
-    <input type="hidden" name="_csrf" value={{csrfToken}} /> 
-    <input id="addCred" class="makeSubmit" type="submit" value="Spam your account" />
-  </form>
-  <!--<form id="aviPanel" name="panel" action="/upgradeAvatar" method="POST">
-    <input type="hidden" name="_csrf" value={{csrfToken}} /> 
-    <input id="upgradeAvi" class="makeSubmit" type="submit" value="Upgrade Avatar" />
-  </form>!-->
+  <section id="income">
+  <br><br>
+  </section>
+  <section id="incomeUpgrade">
+  </section>
   </div>
+  <section id="makeBadTweet">
+  </section>
+  <section id="makeLowTweet">
+  </section>
   <section id="tweets">
-    <div class="tweets">
-      {{#if tweets}}
-        {{#each tweets}}
-          <div class ="tweet"><img src="/assets/img/egg.jpg" alt="domo face" class="domoFace"/>
-            <p class = "tweetAcc">{{../accountName}} </p><p class = "tweetAt"> @{{../accountName}}</p><p class = "tweetIncome">{{this.income}}</p>
-            <p class = "tweetText">{{this.textContents}}</p>
-          </div>
-        {{/each}}
-        {{else}}
-          <h3 class="emptyDomo">This user hasn't tweeted yet.</h3>
-        {{/if}}
-    </div>
   </section>
   <div id="domoMessage"><img id="speech" src="/assets/img/speech.png" alt="speech box"/>
     <h3><span id="errorMessage"></span></h3><img id="domo" src="assets/img/domo.png" alt="domo"/>

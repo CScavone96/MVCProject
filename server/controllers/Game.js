@@ -12,18 +12,14 @@ const collectIncome = (req, res) => {
     const tweets = docs;
     let income = 0;
     for (let i = 0; i < tweets.length; i++) {
-      income = income + 1;
+      income = income + parseInt(tweets[i].income, 10);
     }
     if (income > 0) {
       const query = { username: req.session.account.username };
       const newCredits = { $inc: { impressions: income } };
-      return models.Account.AccountModel.update(query, newCredits, () => {
-            // if (err) return res.status(400).json({ error: 'An error occured.' });
-            // return res.status(200).json({ message: 'Clicked.' });
-      });
+      return models.Account.AccountModel.update(query, newCredits, () => {});
     }
     return 0;
-    // return res.status(200).json({ message: 'No income' });
   });
 };
 
@@ -44,8 +40,8 @@ const renderApp = (btweetCount, ltweetCount, i, twts, twets, req, res) => {
       models.Account.AccountModel.findOne({ username: req.session.account.username }
             , (error, newdocs) => {
               imp = newdocs.impressions;
-              const bcst = btweetCount.count * btweetCount.count * 25;
-              const lcst = ltweetCount.count * ltweetCount.count * 100;
+              const bcst = btweetCount.count * btweetCount.count * 10;
+              const lcst = ltweetCount.count * ltweetCount.count * 50;
               const accName = newdocs.username;
               return res.render('app', { csrfToken: req.csrfToken(),
                 bcost: bcst, lcost: lcst, tweets: twets, impressions: imp, accountName: accName });
@@ -69,12 +65,13 @@ const gamePage = (req, res) => {
     if (interval === null) {
       interval = setInterval(collectIncome.bind(null, req, res), 1000);
     }
+    // console.log(`interval is ${interval}`);
     if (twts.length === 0) {
       return models.Account.AccountModel.findOne(
       { username: req.session.account.username }, (error, newdocs) => {
         imp = newdocs.impressions;
-        const bcst = badCount.count * badCount.count * 25;
-        const lcst = lowCount.count * lowCount.count * 100;
+        const bcst = badCount.count * badCount.count * 10;
+        const lcst = lowCount.count * lowCount.count * 50;
         const accName = newdocs.username;
         return res.render('app', { csrfToken: req.csrfToken(),
           bcost: bcst, lcost: lcst, tweets: twets, impressions: imp, accountName: accName });
@@ -97,11 +94,16 @@ const helpPage = (req, res) => res.render('help', { csrfToken: req.csrfToken() }
 
 const addCredit = (req, res) => {
   const query = { username: req.session.account.username };
-  const newCredits = { $inc: { impressions: 1 } };
-  models.Account.AccountModel.update(query, newCredits, (err) => {
-    if (err) return res.status(400).json({ error: 'An error occured.' });
-    return res.status(200).json({ message: 'Clicked.' });
-  });
+  let spamPow = 0;
+  models.Account.AccountModel.findOne({ username: req.session.account.username }
+            , (error, newdocs) => {
+              spamPow = newdocs.spamPower;
+              const newCredits = { $inc: { impressions: spamPow } };
+              models.Account.AccountModel.update(query, newCredits, (err) => {
+                if (err) return res.status(400).json({ error: 'An error occured.' });
+                return res.status(200).json({ message: 'Clicked.' });
+              });
+            });
 };
 
 module.exports.gamePage = gamePage;

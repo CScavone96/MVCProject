@@ -62,6 +62,9 @@ const signup = (request, response) => {
     const accountData = {
       username: req.body.username,
       salt,
+      avatarPower: 0,
+      avatar: -1,
+      spamPower: 1,
       impressions: 0,
       password: hash,
     };
@@ -108,6 +111,79 @@ const changePassword = (request, response) => {
   });
 };
 
+const getAccount = (request, response) => {
+  const req = request;
+  const res = response;
+  return Account.AccountModel.findByUsername(req.session.account.username, (err, docs) => {
+    if (err) {
+      console.log(err);
+      return res.status(400).json({ error: 'An error occured' });
+    }
+    const accounts = [docs];
+    return res.json({ account: accounts });
+  });
+};
+
+const upgradeSpam = (request, response) => {
+  const req = request;
+  const res = response;
+  return Account.AccountModel.findByUsername(req.session.account.username, (err, docs) => {
+    if (err) {
+      console.log(err);
+      return res.status(400).json({ error: 'An error occured' });
+    }
+    const query = { username: req.session.account.username };
+    const cost = docs.spamPower * docs.spamPower * 75;
+    if (docs.impressions >= cost) {
+      const newPow = docs.spamPower + 1;
+      const newPower = { spamPower: newPow, $inc: { impressions: -cost } };
+      return models.Account.AccountModel.update(query, newPower,
+      () => models.Account.AccountModel.update(query,
+      () => res.json(
+        {
+          redirect: 'game',
+        })));
+    }
+
+    return res.status(400).json({ error: 'Need more impressions' });
+  });
+};
+
+
+const upgradeAvatar = (request, response) => {
+  const req = request;
+  const res = response;
+  return Account.AccountModel.findByUsername(req.session.account.username, (err, docs) => {
+    if (err) {
+      console.log(err);
+      return res.status(400).json({ error: 'An error occured' });
+    }
+    const query = { username: req.session.account.username };
+    const cost = (docs.avatarPower + 1) * (docs.avatarPower + 1) * 1000;
+    if (docs.impressions >= cost) {
+      const newPow = docs.avatarPower + 1;
+      const newPower = { avatarPower: newPow, $inc: { impressions: -cost } };
+      return models.Account.AccountModel.update(query, newPower,
+      () => models.Account.AccountModel.update(query,
+      () => res.json(
+        {
+          redirect: 'game',
+        })));
+    }
+
+    return res.status(400).json({ error: 'Need more impressions' });
+  });
+};
+
+const getToken = (request, response) => {
+  const req = request;
+  const res = response;
+  const csrfJSON = {
+    csrfToken: req.csrfToken(),
+  };
+  res.json(csrfJSON);
+};
+
 module.exports.loginPage = loginPage;
 module.exports.login = login;
 module.exports.logout = logout;
@@ -115,3 +191,7 @@ module.exports.signupPage = signupPage;
 module.exports.changePass = changePassPage;
 module.exports.passChange = changePassword;
 module.exports.signup = signup;
+module.exports.getAccount = getAccount;
+module.exports.getToken = getToken;
+module.exports.upgradeSpam = upgradeSpam;
+module.exports.upgradeAvatar = upgradeAvatar;

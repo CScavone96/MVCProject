@@ -7,12 +7,25 @@ const Tweet = models.Tweet;
 
 const sendAjax = (request, response, url) => {
   const xhr = new XMLHttpRequest();
-  // console.log(url);
-  // xhr.onload = () => handleResponse(request, response, xhr);
   xhr.open('GET', url, false);
   xhr.responseType = 'document';
   xhr.send();
   return xhr.responseText;
+};
+
+const getTweets = (request, response) => {
+  const req = request;
+  const res = response;
+
+  return Tweet.TweetModel.findByOwner(req.session.account._id, (err, docs) => {
+    if (err) {
+      console.log(err);
+      return res.status(400).json({ error: 'An error occured' });
+    }
+    const tweetArr = docs;
+    const tweetArrr = tweetArr.reverse();
+    return res.json({ tweets: tweetArrr });
+  });
 };
 
 const getBadTweetCount = (tc, tweet) => Tweet.TweetModel.findById(
@@ -35,7 +48,7 @@ tweet.id, 'income textContents createdData', (err, dcs) => {
 
 const makeBadTweet = (req, res) => models.Tweet.TweetModel.findByOwner(
   req.session.account._id, (er, docos) => {
-    const cost = 25;
+    const cost = 10;
     if (er) {
       console.log(er);
       return res.status(400).json({ error: 'An error occured' });
@@ -69,6 +82,7 @@ const makeBadTweet = (req, res) => models.Tweet.TweetModel.findByOwner(
         return models.Account.AccountModel.update(query, newCredits, () => {
           const tweetData = {
             owner: req.session.account._id,
+            username: req.session.account.username,
             income: 1,
             textContents: tweetText,
           };
@@ -123,6 +137,7 @@ const makeBadTweet = (req, res) => models.Tweet.TweetModel.findByOwner(
           return models.Account.AccountModel.update(query, newCredits, () => {
             const tweetData = {
               owner: req.session.account._id,
+              username: req.session.account.username,
               income: 1,
               textContents: tweetText,
             };
@@ -150,7 +165,7 @@ const makeBadTweet = (req, res) => models.Tweet.TweetModel.findByOwner(
 
 const makeLowTweet = (req, res) => models.Tweet.TweetModel.findByOwner(
   req.session.account._id, (er, docos) => {
-    const cost = 100;
+    const cost = 50;
     if (er) {
       console.log(er);
       return res.status(400).json({ error: 'An error occured' });
@@ -170,10 +185,11 @@ const makeLowTweet = (req, res) => models.Tweet.TweetModel.findByOwner(
         let tweetText = 'test tweet plz ignore';
         tweetText = sendAjax(req, res, 'http://catfacts-api.appspot.com/api/facts');
         const jsonTweet = JSON.parse(tweetText);
-        tweetText = jsonTweet.facts[0];
+        tweetText = jsonTweet.facts[0].substring(0, 140);
         return models.Account.AccountModel.update(query, newCredits, () => {
           const tweetData = {
             owner: req.session.account._id,
+            username: req.session.account.username,
             income: 2,
             textContents: tweetText,
           };
@@ -210,10 +226,11 @@ const makeLowTweet = (req, res) => models.Tweet.TweetModel.findByOwner(
           let tweetText = 'test tweet plz ignore';
           tweetText = sendAjax(req, res, 'http://catfacts-api.appspot.com/api/facts');
           const jsonTweet = JSON.parse(tweetText);
-          tweetText = jsonTweet.facts[0];
+          tweetText = jsonTweet.facts[0].substring(0, 140);
           return models.Account.AccountModel.update(query, newCredits, () => {
             const tweetData = {
               owner: req.session.account._id,
+              username: req.session.account.username,
               income: 2,
               textContents: tweetText,
             };
@@ -238,6 +255,6 @@ const makeLowTweet = (req, res) => models.Tweet.TweetModel.findByOwner(
     }
     return null;
   });
-
 module.exports.makeBad = makeBadTweet;
 module.exports.makeLow = makeLowTweet;
+module.exports.getTweets = getTweets;
