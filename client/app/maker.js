@@ -172,7 +172,7 @@ const renderIncomeUpgrade = function(){
 const renderAvatarUpgrade = function(){
     if(this.state.data.length === 0){
         return(
-        <form id="avatarUpgrade"            
+        <form id="avaUpgrade"            
           name ="panel"
           onSubmit = {this.handleSubmit}
           action = "/upgradeAvatar"
@@ -194,7 +194,7 @@ const renderAvatarUpgrade = function(){
     
     const avatarNodes = this.state.data.map(function(account){
         return(
-        <form key={account._id} id="avatarUpgrade"            
+        <form key={account._id} id="avaUpgrade"            
           name ="panel"
           onSubmit = {func.handleSubmit}
           action = "/upgradeAvatar"
