@@ -57,53 +57,6 @@ const handleLowTweet = (e) => {
     return false;
 }
 
-const renderAvatarUpgrade = function(){
-    const csrf = this.props.csrf;
-    if(this.state.data.length === 0){
-        return(
-        <form id="avatarUpgrade"            
-          name ="panel"
-          onSubmit = {this.handleSubmit}
-          action = "/upgradeAvatar"
-          method = "POST">
-        <label>Avatar Power: </label> 
-        <label id="avatarPow">0</label>
-        <label>|</label>
-        <label>Upgrade Cost: </label> 
-        <label id="avatarCost">0</label>
-        <label>|</label>
-        <input type="hidden" name="_csrf" value={csrf}/>
-        <input id="doAvatar" className="makeSubmit" type="submit" value="Upgrade your avatar" />
-        </form>
-        );
-    }
-    const func = this;
-    const incNodes = this.state.data.map(function(account){
-        return(
-        <form key={account._id} id="avatarUpgrade"            
-          name ="panel"
-          onSubmit = {func.handleSubmit}
-          action = "/upgradeAvatar"
-          method = "POST">
-        <label>Avatar Power: </label> 
-        <label id="avatarPow">{account.avatarPower}</label>
-        <label>|</label>
-        <label>Upgrade Cost: </label> 
-        <label id="avatarCost">{(account.avatarPower+1)*(account.avatarPower+1)*1000}</label>
-        <label>|</label>
-        <input type="hidden" name="_csrf" value={csrf}/>
-        <input id="doAvatar" className="makeSubmit" type="submit" value="Upgrade your avatar" />
-        </form>
-        );
-    });
-    
-    return (
-      <div>
-        {incNodes}
-      </div>
-    );
-};
-
 const handleAvatarUpgrade = (e) => {
     e.preventDefault();
     sendAjax('POST', $("#avatarUpgrade").attr("action"), $("#avatarUpgrade").serialize(), function(){
@@ -211,6 +164,56 @@ const renderIncomeUpgrade = function(){
     return (
       <div>
         {incNodes}
+      </div>
+    );
+};
+
+
+const renderAvatarUpgrade = function(){
+    if(this.state.data.length === 0){
+        return(
+        <form id="avatarUpgrade"            
+          name ="panel"
+          onSubmit = {this.handleSubmit}
+          action = "/upgradeAvatar"
+          method = "POST">
+        <label>Avatar Power: </label> 
+        <label id="avatarPow">0</label>
+        <label>|</label>
+        <label>Upgrade Cost: </label> 
+        <label id="avatarCost">0</label>
+        <label>|</label>
+        <input type="hidden" name="_csrf" value={this.props.csrf}/>
+        <input id="doAvatar" className="makeSubmit" type="submit" value="Upgrade your avatar" />
+        </form>
+        );
+    }
+    
+    const csrf = this.props.csrf;
+    const func = this;
+    
+    const avatarNodes = this.state.data.map(function(account){
+        return(
+        <form key={account._id} id="avatarUpgrade"            
+          name ="panel"
+          onSubmit = {func.handleSubmit}
+          action = "/upgradeAvatar"
+          method = "POST">
+        <label>Avatar Power: </label> 
+        <label id="avatarPow">{account.avatarPower}</label>
+        <label>|</label>
+        <label>Upgrade Cost: </label> 
+        <label id="avatarCost">{(account.avatarPower+1)*(account.avatarPower+1)*1000}</label>
+        <label>|</label>
+        <input type="hidden" name="_csrf" value={csrf}/>
+        <input id="doAvatar" className="makeSubmit" type="submit" value="Upgrade your avatar" />
+        </form>
+        );
+    });
+    
+    return (
+      <div>
+        {avatarNodes}
       </div>
     );
 };
