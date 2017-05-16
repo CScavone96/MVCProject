@@ -3,6 +3,7 @@
 var tweetRenderer = void 0;
 var badTweetForm = void 0;
 var lowTweetForm = void 0;
+var gifTweetForm = void 0;
 var incPanel = void 0;
 var incUpgrade = void 0;
 var avatarUpgrade = void 0;
@@ -12,6 +13,7 @@ var IncomeUpgradeFormClass = void 0;
 var AvatarUpgradeFormClass = void 0;
 var BadTweetFormClass = void 0;
 var LowTweetFormClass = void 0;
+var GifTweetFormClass = void 0;
 var StatsClass = void 0;
 var TweetListClass = void 0;
 
@@ -22,7 +24,7 @@ var handleTweet = function handleTweet(e) {
     var incomes = document.getElementsByClassName("tweetIncome");
     var bcount = 1;
     for (var i = 0; i < incomes.length; i++) {
-        if (incomes[i].innerHTML === "1") {
+        if (incomes[i].innerHTML.substring(0, 1) === "1") {
             bcount++;
         }
     }
@@ -44,7 +46,7 @@ var handleLowTweet = function handleLowTweet(e) {
     var incomes = document.getElementsByClassName("tweetIncome");
     var lcount = 1;
     for (var i = 0; i < incomes.length; i++) {
-        if (incomes[i].innerHTML === "2") {
+        if (incomes[i].innerHTML.substring(0, 1) === "2") {
             lcount++;
         }
     }
@@ -59,104 +61,42 @@ var handleLowTweet = function handleLowTweet(e) {
     return false;
 };
 
-var renderAvatarUpgrade = function renderAvatarUpgrade() {
-    var csrf = this.props.csrf;
-    if (this.state.data.length === 0) {
-        return React.createElement(
-            "form",
-            { id: "avatarUpgrade",
-                name: "panel",
-                onSubmit: this.handleSubmit,
-                action: "/upgradeAvatar",
-                method: "POST" },
-            React.createElement(
-                "label",
-                null,
-                "Avatar Power: "
-            ),
-            React.createElement(
-                "label",
-                { id: "avatarPow" },
-                "0"
-            ),
-            React.createElement(
-                "label",
-                null,
-                "|"
-            ),
-            React.createElement(
-                "label",
-                null,
-                "Upgrade Cost: "
-            ),
-            React.createElement(
-                "label",
-                { id: "avatarCost" },
-                "0"
-            ),
-            React.createElement(
-                "label",
-                null,
-                "|"
-            ),
-            React.createElement("input", { type: "hidden", name: "_csrf", value: csrf }),
-            React.createElement("input", { id: "doAvatar", className: "makeSubmit", type: "submit", value: "Upgrade your avatar" })
-        );
+var handleGifTweet = function handleGifTweet(e) {
+    e.preventDefault();
+
+    $("#tweetMessage").animate({ width: 'hide' }, 350);
+
+    if ($("#tag").val() == '') {
+        handleError("Tag is required");
+        return false;
     }
-    var func = this;
-    var incNodes = this.state.data.map(function (account) {
-        return React.createElement(
-            "form",
-            { key: account._id, id: "avatarUpgrade",
-                name: "panel",
-                onSubmit: func.handleSubmit,
-                action: "/upgradeAvatar",
-                method: "POST" },
-            React.createElement(
-                "label",
-                null,
-                "Avatar Power: "
-            ),
-            React.createElement(
-                "label",
-                { id: "avatarPow" },
-                account.avatarPower
-            ),
-            React.createElement(
-                "label",
-                null,
-                "|"
-            ),
-            React.createElement(
-                "label",
-                null,
-                "Upgrade Cost: "
-            ),
-            React.createElement(
-                "label",
-                { id: "avatarCost" },
-                (account.avatarPower + 1) * (account.avatarPower + 1) * 1000
-            ),
-            React.createElement(
-                "label",
-                null,
-                "|"
-            ),
-            React.createElement("input", { type: "hidden", name: "_csrf", value: csrf }),
-            React.createElement("input", { id: "doAvatar", className: "makeSubmit", type: "submit", value: "Upgrade your avatar" })
-        );
+    var incomes = document.getElementsByClassName("tweetIncome");
+    var gcount = 1;
+    for (var i = 0; i < incomes.length; i++) {
+        if (incomes[i].innerHTML.substring(0, 1) === "5") {
+            gcount++;
+        }
+    }
+    var cost = gcount * gcount * 100;
+    var newCost = (gcount + 1) * (gcount + 1) * 100;
+    sendAjax('POST', $("#gifTweetForm").attr("action"), $("#gifTweetForm").serialize(), function () {
+        tweetRenderer.loadTweetsFromServer();
+        $("#credDisplay").html(parseInt($('#credDisplay').html()) - cost);
+        $("#gifCost").html(newCost);
     });
 
-    return React.createElement(
-        "div",
-        null,
-        incNodes
-    );
+    return false;
 };
 
 var handleAvatarUpgrade = function handleAvatarUpgrade(e) {
     e.preventDefault();
-    sendAjax('POST', $("#avatarUpgrade").attr("action"), $("#avatarUpgrade").serialize(), function () {});
+    sendAjax('POST', $("#avaUpgrade").attr("action"), $("#avaUpgrade").serialize(), function () {
+        var avatarPow = parseInt($('#avatarPow').html()) + 1;
+        $("#credDisplay").html(parseInt($('#credDisplay').html()) - parseInt($('#avatarCost').html()));
+        $("#avatarPow").html(avatarPow);
+        $("#avatarCost").html((avatarPow + 1) * (avatarPow + 1) * 1000);
+        location.reload();
+    });
     return false;
 };
 
@@ -171,10 +111,11 @@ var handleIncome = function handleIncome(e) {
 var handleIncomeUpgrade = function handleIncomeUpgrade(e) {
     e.preventDefault();
     sendAjax('POST', $("#incUpgrade").attr("action"), $("#incUpgrade").serialize(), function () {
-        var spamPow = parseInt($('#spamPow').html());
-        $("#spamPow").html(spamPow + 1);
+        var spamPow = parseInt(parseInt($('#spamPow').html()) + 1);
+        var newCost = spamPow * spamPow * 75;
+        $("#spamPow").html(spamPow);
         $("#credDisplay").html(parseInt($('#credDisplay').html()) - parseInt($('#spamCost').html()));
-        $("#spamCost").html(spamPow * spamPow * 75);
+        $("#spamCost").html(newCost);
     });
     return false;
 };
@@ -308,6 +249,103 @@ var renderIncomeUpgrade = function renderIncomeUpgrade() {
         "div",
         null,
         incNodes
+    );
+};
+
+var renderAvatarUpgrade = function renderAvatarUpgrade() {
+    if (this.state.data.length === 0) {
+        return React.createElement(
+            "form",
+            { id: "avaUpgrade",
+                name: "panel",
+                onSubmit: this.handleSubmit,
+                action: "/upgradeAvatar",
+                method: "POST" },
+            React.createElement(
+                "label",
+                null,
+                "Avatar Power: "
+            ),
+            React.createElement(
+                "label",
+                { id: "avatarPow" },
+                "0"
+            ),
+            React.createElement(
+                "label",
+                null,
+                "|"
+            ),
+            React.createElement(
+                "label",
+                null,
+                "Upgrade Cost: "
+            ),
+            React.createElement(
+                "label",
+                { id: "avatarCost" },
+                "0"
+            ),
+            React.createElement(
+                "label",
+                null,
+                "|"
+            ),
+            React.createElement("input", { type: "hidden", name: "_csrf", value: this.props.csrf }),
+            React.createElement("input", { id: "doAvatar", className: "makeSubmit", type: "submit", value: "Upgrade your avatar" })
+        );
+    }
+
+    var csrf = this.props.csrf;
+    var func = this;
+
+    var avatarNodes = this.state.data.map(function (account) {
+        return React.createElement(
+            "form",
+            { key: account._id, id: "avaUpgrade",
+                name: "panel",
+                onSubmit: func.handleSubmit,
+                action: "/upgradeAvatar",
+                method: "POST" },
+            React.createElement(
+                "label",
+                null,
+                "Avatar Power: "
+            ),
+            React.createElement(
+                "label",
+                { id: "avatarPow" },
+                account.avatarPower
+            ),
+            React.createElement(
+                "label",
+                null,
+                "|"
+            ),
+            React.createElement(
+                "label",
+                null,
+                "Upgrade Cost: "
+            ),
+            React.createElement(
+                "label",
+                { id: "avatarCost" },
+                (account.avatarPower + 1) * (account.avatarPower + 1) * 1000
+            ),
+            React.createElement(
+                "label",
+                null,
+                "|"
+            ),
+            React.createElement("input", { type: "hidden", name: "_csrf", value: csrf }),
+            React.createElement("input", { id: "doAvatar", className: "makeSubmit", type: "submit", value: "Upgrade your avatar" })
+        );
+    });
+
+    return React.createElement(
+        "div",
+        null,
+        avatarNodes
     );
 };
 
@@ -463,6 +501,52 @@ var renderLowTweet = function renderLowTweet() {
     );
 };
 
+var renderGifTweet = function renderGifTweet() {
+    var csrf = this.props.csrf;
+    var i = 0;
+    var tweets = this.state.data;
+    var gifCost = 1;
+    for (i = 0; i < tweets.length; i++) {
+        console.log(tweets[i].income);
+        if (tweets[i].income === 5) {
+            gifCost++;
+        }
+    }
+    gifCost = gifCost * gifCost * 100;
+    return React.createElement(
+        "form",
+        { id: "gifTweetForm",
+            name: "panel",
+            action: "/tweetGif",
+            onSubmit: this.handleSubmit,
+            method: "POST",
+            className: "panel" },
+        React.createElement(
+            "label",
+            null,
+            "Cost: "
+        ),
+        React.createElement(
+            "label",
+            { id: "gifCost" },
+            gifCost
+        ),
+        React.createElement(
+            "label",
+            null,
+            "|"
+        ),
+        React.createElement(
+            "label",
+            { htmlFor: "tag" },
+            "Gif Topic: "
+        ),
+        React.createElement("input", { id: "gifTag", type: "text", name: "tag", placeholder: "Ex. pixel art, walrus..." }),
+        React.createElement("input", { type: "hidden", name: "_csrf", value: csrf }),
+        React.createElement("input", { className: "makeSubmit", type: "submit", value: "Tweet a GIF" })
+    );
+};
+
 var renderTweetList = function renderTweetList() {
     if (this.state.data.length === 0) {
         return React.createElement(
@@ -478,12 +562,39 @@ var renderTweetList = function renderTweetList() {
     var func = this;
     var tweetNodes = this.state.tweetdata.map(function (tweet) {
         var avatar = func.state.data[0].avatar;
-        console.log(avatar);
+        var avatarPow = func.state.data[0].avatarPower;
         var avaSrc = "";
         if (avatar === -1) {
             avaSrc = "/assets/img/egg.jpg";
+        } else {
+            avaSrc = "https://unsplash.it/200?image=" + avatar;
         }
         console.log(avaSrc);
+        if (tweet.income == 5) {
+            return React.createElement(
+                "div",
+                { key: tweet._id, className: "tweet" },
+                React.createElement("img", { src: avaSrc, alt: "userAvatar", className: "tweetFace" }),
+                React.createElement(
+                    "p",
+                    { className: "tweetAcc" },
+                    tweet.username,
+                    " "
+                ),
+                React.createElement(
+                    "p",
+                    { className: "tweetAt" },
+                    "@",
+                    tweet.username
+                ),
+                React.createElement(
+                    "p",
+                    { className: "tweetIncome" },
+                    tweet.income + " + " + avatarPow
+                ),
+                React.createElement("img", { className: "tweetImg", src: tweet.textContents })
+            );
+        }
         return React.createElement(
             "div",
             { key: tweet._id, className: "tweet" },
@@ -503,7 +614,7 @@ var renderTweetList = function renderTweetList() {
             React.createElement(
                 "p",
                 { className: "tweetIncome" },
-                tweet.income
+                tweet.income + " + " + avatarPow
             ),
             React.createElement(
                 "p",
@@ -600,6 +711,16 @@ $(document).ready(function () {
 
         return false;
     });
+
+    $("#gifTweetForm").on("submit", function (e) {
+        e.preventDefault();
+
+        $("#tweetMessage").animate({ width: 'hide' }, 350);
+
+        sendAjax($("#gifTweetForm").attr("action"), $("#gifTweetForm").serialize());
+
+        return false;
+    });
 });
 
 var setup = function setup(csrf) {
@@ -637,6 +758,24 @@ var setup = function setup(csrf) {
             this.loadCost();
         },
         render: renderLowTweet
+    });
+
+    GifTweetFormClass = React.createClass({
+        displayName: "GifTweetFormClass",
+
+        handleSubmit: handleGifTweet,
+        loadCost: function loadCost() {
+            sendAjax('GET', '/getTweets', null, function (data) {
+                this.setState({ data: data.tweets });
+            }.bind(this));
+        },
+        getInitialState: function getInitialState() {
+            return { data: [] };
+        },
+        componentDidMount: function componentDidMount() {
+            this.loadCost();
+        },
+        render: renderGifTweet
     });
 
     AvatarUpgradeFormClass = React.createClass({
@@ -743,6 +882,8 @@ var setup = function setup(csrf) {
     badTweetForm = ReactDOM.render(React.createElement(BadTweetFormClass, { csrf: csrf }), document.querySelector("#makeBadTweet"));
 
     lowTweetForm = ReactDOM.render(React.createElement(LowTweetFormClass, { csrf: csrf }), document.querySelector("#makeLowTweet"));
+
+    gifTweetForm = ReactDOM.render(React.createElement(GifTweetFormClass, { csrf: csrf }), document.querySelector("#makeGifTweet"));
 
     tweetRenderer = ReactDOM.render(React.createElement(TweetListClass, null), document.querySelector("#tweets"));
 };

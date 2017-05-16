@@ -1,6 +1,7 @@
 let tweetRenderer;
 let badTweetForm;
 let lowTweetForm;
+let gifTweetForm;
 let incPanel;
 let incUpgrade;
 let avatarUpgrade;
@@ -10,6 +11,7 @@ let IncomeUpgradeFormClass;
 let AvatarUpgradeFormClass;
 let BadTweetFormClass;
 let LowTweetFormClass;
+let GifTweetFormClass;
 let StatsClass;
 let TweetListClass;
 
@@ -20,7 +22,7 @@ const handleTweet = (e) => {
     var incomes = document.getElementsByClassName("tweetIncome");
     let bcount = 1;
     for(let i = 0; i < incomes.length; i++){
-        if(incomes[i].innerHTML === "1"){
+        if(incomes[i].innerHTML.substring(0,1) === "1"){
             bcount++;
         }
     }
@@ -42,7 +44,7 @@ const handleLowTweet = (e) => {
     var incomes = document.getElementsByClassName("tweetIncome");
     let lcount = 1;
     for(let i = 0; i < incomes.length; i++){
-        if(incomes[i].innerHTML === "2"){
+        if(incomes[i].innerHTML.substring(0,1) === "2"){
             lcount++;
         }
     }
@@ -57,10 +59,42 @@ const handleLowTweet = (e) => {
     return false;
 }
 
+
+const handleGifTweet = (e) => {
+    e.preventDefault();
+    
+    $("#tweetMessage").animate({width:'hide'}, 350);
+    
+    if($("#tag").val() == ''){
+        handleError("Tag is required");
+        return false;
+    } 
+    var incomes = document.getElementsByClassName("tweetIncome");
+    let gcount = 1;
+    for(let i = 0; i < incomes.length; i++){
+        if(incomes[i].innerHTML.substring(0,1) === "5"){
+            gcount++;
+        }
+    }
+    let cost = gcount * gcount * 100;
+    let newCost = (gcount+1) * (gcount+1) * 100;
+    sendAjax('POST', $("#gifTweetForm").attr("action"), $("#gifTweetForm").serialize(), function(){
+      tweetRenderer.loadTweetsFromServer();
+      $("#credDisplay").html(parseInt($('#credDisplay').html())-cost);
+      $("#gifCost").html(newCost);
+    });
+    
+    return false;
+}
+
 const handleAvatarUpgrade = (e) => {
     e.preventDefault();
-    sendAjax('POST', $("#avatarUpgrade").attr("action"), $("#avatarUpgrade").serialize(), function(){
-
+    sendAjax('POST', $("#avaUpgrade").attr("action"), $("#avaUpgrade").serialize(), function(){
+        const avatarPow = parseInt($('#avatarPow').html()) + 1;
+        $("#credDisplay").html(parseInt($('#credDisplay').html())-parseInt($('#avatarCost').html()));
+        $("#avatarPow").html(avatarPow);
+        $("#avatarCost").html((avatarPow+1) * (avatarPow+1) * 1000);
+        location.reload();
     });
     return false;
 }
@@ -76,10 +110,11 @@ const handleIncome = (e) => {
 const handleIncomeUpgrade = (e) => {
     e.preventDefault();
     sendAjax('POST', $("#incUpgrade").attr("action"), $("#incUpgrade").serialize(), function(){
-        const spamPow = parseInt($('#spamPow').html());
-        $("#spamPow").html(spamPow+1);
+        const spamPow = parseInt(parseInt($('#spamPow').html()) + 1);
+        let newCost = spamPow * spamPow * 75;
+        $("#spamPow").html(spamPow);
         $("#credDisplay").html(parseInt($('#credDisplay').html())-parseInt($('#spamCost').html()));
-        $("#spamCost").html(spamPow * spamPow * 75);
+        $("#spamCost").html(newCost);
     });
     return false;
 }
@@ -307,6 +342,35 @@ const renderLowTweet = function(){
     );
 };
 
+const renderGifTweet = function(){
+    const csrf = this.props.csrf;
+    let i = 0;
+    const tweets = this.state.data;
+    let gifCost = 1;
+    for(i =0; i < tweets.length; i++){
+        console.log(tweets[i].income);
+        if(tweets[i].income === 5){
+            gifCost++;
+        }
+    }
+    gifCost = gifCost * gifCost * 100;
+    return(
+    <form id="gifTweetForm"            
+          name ="panel"
+          action = "/tweetGif"
+          onSubmit = {this.handleSubmit}
+          method = "POST"
+          className = "panel">
+        <label>Cost: </label> 
+        <label id="gifCost">{gifCost}</label>
+        <label>|</label>
+        <label htmlFor="tag">Gif Topic: </label>
+        <input id="gifTag" type="text" name="tag" placeholder="Ex. pixel art, walrus..."/>
+        <input type="hidden" name="_csrf" value={csrf}/>
+        <input className="makeSubmit" type="submit" value="Tweet a GIF" />
+    </form>
+    );
+};
 
 const renderTweetList = function(){
     if(this.state.data.length === 0){
@@ -319,18 +383,32 @@ const renderTweetList = function(){
     const func = this;
     const tweetNodes = this.state.tweetdata.map(function(tweet){
         let avatar = func.state.data[0].avatar;
-        console.log(avatar);
+        let avatarPow = func.state.data[0].avatarPower;
         let avaSrc = "";
         if(avatar === -1){
             avaSrc = "/assets/img/egg.jpg";
         }
+        else{
+            avaSrc = "https://unsplash.it/200?image=" + avatar;
+        }
         console.log(avaSrc);
+        if(tweet.income == 5){
+           return(
+            <div key={tweet._id} className="tweet">
+              <img src={avaSrc} alt="userAvatar" className="tweetFace"/>
+              <p className = "tweetAcc">{tweet.username} </p>
+              <p className = "tweetAt">@{tweet.username}</p>
+              <p className = "tweetIncome">{tweet.income + " + " + avatarPow}</p>
+              <img className = "tweetImg" src = {tweet.textContents}/>        
+            </div>
+            ); 
+        }
         return(
         <div key={tweet._id} className="tweet">
           <img src={avaSrc} alt="userAvatar" className="tweetFace"/>
           <p className = "tweetAcc">{tweet.username} </p>
           <p className = "tweetAt">@{tweet.username}</p>
-          <p className = "tweetIncome">{tweet.income}</p>
+          <p className = "tweetIncome">{tweet.income + " + " + avatarPow}</p>
           <p className = "tweetText">{tweet.textContents}</p>        
         </div>
         );
@@ -423,6 +501,16 @@ $(document).ready(() => {
 
     return false;
   });
+  
+  $("#gifTweetForm").on("submit", (e) => {
+    e.preventDefault();
+
+    $("#tweetMessage").animate({width:'hide'},350);
+
+    sendAjax($("#gifTweetForm").attr("action"), $("#gifTweetForm").serialize());
+
+    return false;
+  });
 });
 
 const setup = function(csrf) {
@@ -456,6 +544,22 @@ const setup = function(csrf) {
           this.loadCost();
       },
       render: renderLowTweet
+  });
+  
+  GifTweetFormClass = React.createClass({
+      handleSubmit: handleGifTweet,
+      loadCost: function(){
+        sendAjax('GET', '/getTweets', null, function(data) {
+            this.setState({data:data.tweets});
+        }.bind(this))
+      },
+      getInitialState: function(){
+          return {data: []};
+      },
+      componentDidMount: function(){
+          this.loadCost();
+      },
+      render: renderGifTweet
   });
   
   AvatarUpgradeFormClass = React.createClass({
@@ -563,6 +667,10 @@ const setup = function(csrf) {
     
   lowTweetForm = ReactDOM.render(
     <LowTweetFormClass csrf={csrf}/>, document.querySelector("#makeLowTweet")
+    );
+    
+  gifTweetForm = ReactDOM.render(
+    <GifTweetFormClass csrf={csrf}/>, document.querySelector("#makeGifTweet")
     );
     
   tweetRenderer = ReactDOM.render(

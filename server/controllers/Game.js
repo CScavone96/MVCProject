@@ -5,21 +5,26 @@ const Tweet = models.Tweet;
 
 const collectIncome = (req, res) => {
   Tweet.TweetModel.findByOwner(req.session.account._id, (err, docs) => {
-    if (err) {
-      console.log(err);
-      return res.status(400).json({ error: 'An error occured' });
-    }
     const tweets = docs;
-    let income = 0;
-    for (let i = 0; i < tweets.length; i++) {
-      income = income + parseInt(tweets[i].income, 10);
-    }
-    if (income > 0) {
-      const query = { username: req.session.account.username };
-      const newCredits = { $inc: { impressions: income } };
-      return models.Account.AccountModel.update(query, newCredits, () => {});
-    }
-    return 0;
+    return models.Account.AccountModel.findOne(
+    { username: req.session.account.username }, (error, newdocs) => {
+      const avaPower = newdocs.avatarPower;
+      if (err) {
+        console.log(err);
+        return res.status(400).json({ error: 'An error occured' });
+      }
+      let income = 0;
+      for (let i = 0; i < tweets.length; i++) {
+        income = income + parseInt(tweets[i].income + avaPower, 10);
+      }
+      if (income > 0) {
+          // console.log(income);
+        const query = { username: req.session.account.username };
+        const newCredits = { $inc: { impressions: income } };
+        return models.Account.AccountModel.update(query, newCredits, () => {});
+      }
+      return 0;
+    });
   });
 };
 
@@ -52,6 +57,8 @@ const renderApp = (btweetCount, ltweetCount, i, twts, twets, req, res) => {
 
 let interval = null;
 const gamePage = (req, res) => {
+  clearInterval(interval);
+  interval = null;
   Tweet.TweetModel.findByOwner(req.session.account._id, (err, docs) => {
     if (err) {
       console.log(err);

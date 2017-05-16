@@ -28,24 +28,6 @@ const getTweets = (request, response) => {
   });
 };
 
-const getBadTweetCount = (tc, tweet) => Tweet.TweetModel.findById(
-tweet.id, 'income textContents createdData', (err, dcs) => {
-  const tcc = tc;
-  if (dcs.income === 1) {
-    return tcc.count++;
-  }
-  return null;
-});
-
-const getLowTweetCount = (tc, tweet) => Tweet.TweetModel.findById(
-tweet.id, 'income textContents createdData', (err, dcs) => {
-  const tcc = tc;
-  if (dcs.income === 2) {
-    return tcc.count++;
-  }
-  return null;
-});
-
 const makeBadTweet = (req, res) => models.Tweet.TweetModel.findByOwner(
   req.session.account._id, (er, docos) => {
     const cost = 10;
@@ -105,7 +87,9 @@ const makeBadTweet = (req, res) => models.Tweet.TweetModel.findByOwner(
       });
     }
     for (let i = 0; i < tweets.length; i++) {
-      getBadTweetCount(tweetCount, tweets[i]);
+      if (tweets[i].income === 1) {
+        tweetCount.count++;
+      }
       if (i === tweets.length - 1) {
         models.Account.AccountModel.findOne({
           username: req.session.account.username }, (err, docs) => {
@@ -176,12 +160,12 @@ const makeLowTweet = (req, res) => models.Tweet.TweetModel.findByOwner(
       return models.Account.AccountModel.findOne({
         username: req.session.account.username }, (err, docs) => {
         const impressions = docs.impressions;
-        if (parseInt(impressions, 10) < (cost * tweetCount * tweetCount)) {
+        if (parseInt(impressions, 10) < (cost * tweetCount.count * tweetCount.count)) {
           return res.status(400).json({ error: 'Impressions are required' });
         }
 
         const query = { username: req.session.account.username };
-        const newCredits = { $inc: { impressions: -(cost * tweetCount * tweetCount) } };
+        const newCredits = { $inc: { impressions: -(cost * tweetCount.count * tweetCount.count) } };
         let tweetText = 'test tweet plz ignore';
         tweetText = sendAjax(req, res, 'http://catfacts-api.appspot.com/api/facts');
         const jsonTweet = JSON.parse(tweetText);
@@ -211,18 +195,22 @@ const makeLowTweet = (req, res) => models.Tweet.TweetModel.findByOwner(
         });
       });
     }
+
     for (let i = 0; i < tweets.length; i++) {
-      getLowTweetCount(tweetCount, tweets[i]);
+      if (tweets[i].income === 2) {
+        tweetCount.count++;
+      }
       if (i === tweets.length - 1) {
         return models.Account.AccountModel.findOne({
           username: req.session.account.username }, (err, docs) => {
           const impressions = docs.impressions;
-          if (parseInt(impressions, 10) < (cost * tweetCount * tweetCount)) {
+          if (parseInt(impressions, 10) < (cost * tweetCount.count * tweetCount.count)) {
             return res.status(400).json({ error: 'Impressions are required' });
           }
 
           const query = { username: req.session.account.username };
-          const newCredits = { $inc: { impressions: -(cost * tweetCount * tweetCount) } };
+          const newCredits = { $inc:
+          { impressions: -(cost * tweetCount.count * tweetCount.count) } };
           let tweetText = 'test tweet plz ignore';
           tweetText = sendAjax(req, res, 'http://catfacts-api.appspot.com/api/facts');
           const jsonTweet = JSON.parse(tweetText);
@@ -253,8 +241,110 @@ const makeLowTweet = (req, res) => models.Tweet.TweetModel.findByOwner(
         });
       }
     }
+
+    return null;
+  });
+
+const makeGifTweet = (req, res) => models.Tweet.TweetModel.findByOwner(
+  req.session.account._id, (er, docos) => {
+    if (!req.body.tag) {
+      return res.status(400).json({ error: 'Tag is required' });
+    }
+    const cost = 100;
+    if (er) {
+      console.log(er);
+      return res.status(400).json({ error: 'An error occured' });
+    }
+    const tweets = docos;
+    const tweetCount = { count: 1 };
+    if (tweets.length === 0) {
+      return models.Account.AccountModel.findOne({
+        username: req.session.account.username }, (err, docs) => {
+        const impressions = docs.impressions;
+        if (parseInt(impressions, 10) < (cost * tweetCount.count * tweetCount.count)) {
+          return res.status(400).json({ error: 'Impressions are required' });
+        }
+
+        const query = { username: req.session.account.username };
+        const newCredits = { $inc: { impressions: -(cost * tweetCount.count * tweetCount.count) } };
+        let tweetText = 'test tweet plz ignore';
+        tweetText = sendAjax(req, res, `http://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=${req.body.tag}`);
+        const jsonTweet = JSON.parse(tweetText);
+        tweetText = jsonTweet.data.image_url;
+        return models.Account.AccountModel.update(query, newCredits, () => {
+          const tweetData = {
+            owner: req.session.account._id,
+            username: req.session.account.username,
+            income: 5,
+            textContents: tweetText,
+          };
+
+          const newTweet = new Tweet.TweetModel(tweetData);
+
+          const tweetPromise = newTweet.save();
+
+          tweetPromise.then(() => res.status(200).json({ message: 'Tweet created.' }));
+
+          tweetPromise.catch((error) => {
+            console.log(error);
+            if (err.code === 11000) {
+              return res.status(400).json({ error: 'Tweet already exists.' });
+            }
+            return res.status(400).json({ error: 'An error occured.' });
+          });
+          return tweetPromise;
+        });
+      });
+    }
+    for (let i = 0; i < tweets.length; i++) {
+      if (tweets[i].income === 5) {
+        tweetCount.count++;
+      }
+      if (i === tweets.length - 1) {
+        return models.Account.AccountModel.findOne({
+          username: req.session.account.username }, (err, docs) => {
+          const impressions = docs.impressions;
+          if (parseInt(impressions, 10) < (cost * tweetCount.count * tweetCount.count)) {
+            return res.status(400).json({ error: 'Impressions are required' });
+          }
+
+          const query = { username: req.session.account.username };
+          const newCredits = { $inc:
+          { impressions: -(cost * tweetCount.count * tweetCount.count) } };
+          let tweetText = 'test tweet plz ignore';
+          tweetText = sendAjax(req, res,
+          `http://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=${req.body.tag}`);
+          const jsonTweet = JSON.parse(tweetText);
+          tweetText = jsonTweet.data.image_url;
+          return models.Account.AccountModel.update(query, newCredits, () => {
+            const tweetData = {
+              owner: req.session.account._id,
+              username: req.session.account.username,
+              income: 5,
+              textContents: tweetText,
+            };
+
+            const newTweet = new Tweet.TweetModel(tweetData);
+
+            const tweetPromise = newTweet.save();
+
+            tweetPromise.then(() => res.status(200).json({ message: 'Tweet created.' }));
+
+            tweetPromise.catch((error) => {
+              console.log(error);
+              if (err.code === 11000) {
+                return res.status(400).json({ error: 'Tweet already exists.' });
+              }
+              return res.status(400).json({ error: 'An error occured.' });
+            });
+            return tweetPromise;
+          });
+        });
+      }
+    }
     return null;
   });
 module.exports.makeBad = makeBadTweet;
 module.exports.makeLow = makeLowTweet;
+module.exports.makeGif = makeGifTweet;
 module.exports.getTweets = getTweets;

@@ -22,7 +22,6 @@ const AccountSchema = new mongoose.Schema({
   },
   impressions: {
     type: Number,
-    min: 0,
     required: true,
   },
   avatarPower: {

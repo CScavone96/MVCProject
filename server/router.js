@@ -14,6 +14,7 @@ const router = (app) => {
   app.post('/upgradeAvatar', mid.requiresLogin, controllers.Account.upgradeAvatar);
   app.post('/tweetBad', mid.requiresLogin, controllers.Tweet.makeBad);
   app.post('/tweetLow', mid.requiresLogin, controllers.Tweet.makeLow);
+  app.post('/tweetGif', mid.requiresLogin, controllers.Tweet.makeGif);
   app.get('/getTweets', mid.requiresLogin, controllers.Tweet.getTweets);
   app.get('/getAccount', mid.requiresLogin, controllers.Account.getAccount);
   app.get('/', mid.requiresSecure, mid.requiresLogout, controllers.Account.loginPage);

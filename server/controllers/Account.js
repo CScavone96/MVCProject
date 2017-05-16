@@ -158,13 +158,18 @@ const upgradeAvatar = (request, response) => {
       console.log(err);
       return res.status(400).json({ error: 'An error occured' });
     }
+    let newAva = docs.avatar;
+    while (newAva === docs.avatar) {
+      newAva = Math.floor(Math.random() * (86 - 1)) + 1;
+    }
+    const newAvatar = { avatar: newAva };
     const query = { username: req.session.account.username };
     const cost = (docs.avatarPower + 1) * (docs.avatarPower + 1) * 1000;
     if (docs.impressions >= cost) {
       const newPow = docs.avatarPower + 1;
       const newPower = { avatarPower: newPow, $inc: { impressions: -cost } };
       return models.Account.AccountModel.update(query, newPower,
-      () => models.Account.AccountModel.update(query,
+      () => models.Account.AccountModel.update(query, newAvatar,
       () => res.json(
         {
           redirect: 'game',

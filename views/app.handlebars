@@ -20,7 +20,7 @@
         var inc = 0;
         for(var i = 0; i < count.length; i++){
             if( parseInt(count[i].innerHTML) > 0){
-                inc = inc + parseInt(count[i].innerHTML);
+                inc = inc + parseInt(parseInt(count[i].innerHTML.substring(0,1)) + parseInt(count[i].innerHTML.substring(4)));
             }
         }
         return inc;
@@ -99,6 +99,8 @@
   <section id="makeBadTweet">
   </section>
   <section id="makeLowTweet">
+  </section>
+  <section id="makeGifTweet">
   </section>
   <section id="tweets">
   </section>
